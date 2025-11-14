@@ -1,33 +1,43 @@
-// src/components/ui/solid-dialog.tsx
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import React from "react";
 
+/**
+ * SolidDialogContent
+ * - Always renders a dark overlay and dark dialog panel (mixed-theme layout: dark header, light body)
+ * - Adds className "radix-dialog-content" to style via index.css
+ */
 export function SolidDialogContent({
   children,
   className = "",
+  ...props
 }: {
   children: React.ReactNode;
   className?: string;
-}) {
+} & Partial<React.ComponentProps<typeof DialogPrimitive.Content>>) {
   return (
     <DialogPrimitive.Portal>
-      {/* Dim background overlay */}
-      <DialogPrimitive.Overlay className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" />
-
-      {/* SOLID WHITE DIALOG (NO TRANSPARENCY, NO BLUE TEXT) */}
+      <DialogPrimitive.Overlay className="radix-dialog-overlay" />
       <DialogPrimitive.Content
-        className={`
-          fixed left-1/2 top-1/2 z-50 
-          -translate-x-1/2 -translate-y-1/2 
-          w-full max-w-2xl max-h-[90vh] overflow-y-auto
-          bg-white text-slate-900
-          border border-neutral-200
-          shadow-2xl rounded-2xl p-6
-          ${className}
-        `}
+        {...props}
+        className={`radix-dialog-content ${className}`}
       >
-        {children}
+        {/* wrapper for header-specific rules */}
+        <div className="dialog-header">
+          {/*
+            consumer components should put DialogHeader/DialogTitle here,
+            but we keep a wrapper so CSS can target headers separately.
+          */}
+        </div>
+
+        {/* actual children (content) */}
+        <div>
+          {children}
+        </div>
+
+        <DialogPrimitive.Close className="sr-only">Close</DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
   );
 }
+
+export default SolidDialogContent;

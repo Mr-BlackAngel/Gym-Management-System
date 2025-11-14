@@ -1,9 +1,25 @@
-import { useState } from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Dumbbell, Clock, Users, Star, Check, Zap, Shield, Trophy, Activity, Apple, Calculator, Ticket, MapPin } from 'lucide-react';
-import OneDayPassBooking from './OneDayPassBooking';
+// GuestPortal.tsx — FINAL PREMIUM VERSION (no JSX errors)
+import React, { useEffect, useRef, useState } from "react";
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Badge } from "./ui/badge";
+import {
+  Dumbbell,
+  Clock,
+  Users,
+  Zap,
+  Calculator,
+  Activity,
+  Check,
+} from "lucide-react";
+import OneDayPassBooking from "./OneDayPassBooking";
 
 interface GuestPortalProps {
   onJoinNow: () => void;
@@ -11,437 +27,426 @@ interface GuestPortalProps {
 }
 
 const facilities = [
-  { name: 'Treadmills', icon: Activity, count: '15+ Machines' },
-  { name: 'Free Weights', icon: Dumbbell, count: '500+ lbs' },
-  { name: 'Yoga Studio', icon: Users, count: 'Private Room' },
-  { name: 'Cardio Zone', icon: Zap, count: '20+ Equipment' },
+  { name: "Treadmills", icon: Activity, count: "15+ Machines" },
+  { name: "Free Weights", icon: Dumbbell, count: "500+ lbs" },
+  { name: "Yoga Studio", icon: Users, count: "Private Room" },
+  { name: "Cardio Zone", icon: Zap, count: "20+ Equipment" },
 ];
 
 const classes = [
-  { name: 'Morning Yoga', trainer: 'Priya Sharma', time: '6:00 AM - 7:00 AM', days: 'Mon, Wed, Fri' },
-  { name: 'HIIT Training', trainer: 'Arjun Patel', time: '7:00 AM - 8:00 AM', days: 'Tue, Thu, Sat' },
-  { name: 'Strength Training', trainer: 'Vikram Singh', time: '5:00 PM - 6:00 PM', days: 'Mon, Wed, Fri' },
-  { name: 'Zumba Dance', trainer: 'Ananya Reddy', time: '6:00 PM - 7:00 PM', days: 'Tue, Thu' },
-];
-
-const trainers = [
-  {
-    name: 'Vikram Singh',
-    specialization: 'Strength & Conditioning',
-    experience: '8 years',
-    rating: 4.9,
-    image: '👨‍🏫'
-  },
-  {
-    name: 'Priya Sharma',
-    specialization: 'Yoga & Flexibility',
-    experience: '6 years',
-    rating: 4.8,
-    image: '👩‍🏫'
-  },
-  {
-    name: 'Arjun Patel',
-    specialization: 'HIIT & Cardio',
-    experience: '10 years',
-    rating: 5.0,
-    image: '👨‍💼'
-  },
-  {
-    name: 'Ananya Reddy',
-    specialization: 'Dance & Aerobics',
-    experience: '5 years',
-    rating: 4.7,
-    image: '👩‍💼'
-  },
+  { name: "Morning Yoga", time: "6:00 AM - 7:00 AM", days: "Mon, Wed, Fri" },
+  { name: "HIIT Training", time: "7:00 AM - 8:00 AM", days: "Tue, Thu, Sat" },
+  { name: "Strength Training", time: "5:00 PM - 6:00 PM", days: "Mon, Wed, Fri" },
+  { name: "Zumba Dance", time: "6:00 PM - 7:00 PM", days: "Tue, Thu" },
 ];
 
 const plans = [
   {
-    name: 'Basic',
-    price: '₹2,499',
-    duration: 'per month',
+    name: "Basic",
+    price: "₹2,499",
+    duration: "per month",
     features: [
-      'Access to gym equipment',
-      'Locker room access',
-      'Free WiFi',
-      '2 guest passes per month',
+      "Access to gym equipment",
+      "Locker room access",
+      "Free WiFi",
+      "2 guest passes / month",
     ],
   },
   {
-    name: 'Premium',
-    price: '₹4,999',
-    duration: 'per month',
+    name: "Premium",
+    price: "₹4,999",
+    duration: "per month",
     features: [
-      'All Basic features',
-      'Unlimited group classes',
-      'Personal training (2 sessions/month)',
-      'Nutrition consultation',
-      'Free gym merchandise',
+      "All Basic features",
+      "Unlimited group classes",
+      "2 personal training sessions / month",
+      "Nutrition consultation",
     ],
     popular: true,
   },
   {
-    name: 'VIP',
-    price: '₹8,999',
-    duration: 'per month',
+    name: "VIP",
+    price: "₹8,999",
+    duration: "per month",
     features: [
-      'All Premium features',
-      'Personal training (8 sessions/month)',
-      'Priority class booking',
-      'Spa & sauna access',
-      'Custom meal plans',
-      'Private locker',
+      "All Premium features",
+      "8 personal sessions / month",
+      "Spa & private locker",
+      "Priority booking",
     ],
   },
 ];
 
 export default function GuestPortal({ onJoinNow, onLogin }: GuestPortalProps) {
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
-  const [bookingType, setBookingType] = useState<'one_day_pass' | 'gym_tour'>('one_day_pass');
+  const [bookingType, setBookingType] =
+    useState<"one_day_pass" | "gym_tour">("one_day_pass");
+
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const heroBgRef = useRef<HTMLDivElement | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  const revealObserver = useRef<IntersectionObserver | null>(null);
+
+  // NAV + PARALLAX
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+
+      if (heroBgRef.current && heroRef.current) {
+        const rect = heroRef.current.getBoundingClientRect();
+        const offset = Math.min(Math.max(-rect.top * 0.15, -120), 120);
+        heroBgRef.current.style.transform = `translate3d(0, ${offset}px, 0) scale(1.03)`;
+      }
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // SECTION REVEAL ANIMATION
+  useEffect(() => {
+    revealObserver.current = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const el = entry.target as HTMLElement;
+          if (entry.isIntersecting) {
+            el.style.opacity = "1";
+            el.style.transform = "translateY(0)";
+            el.style.transition =
+              "opacity 600ms ease, transform 600ms cubic-bezier(.2,.9,.2,1)";
+            revealObserver.current?.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    document.querySelectorAll<HTMLElement>(".reveal-on-scroll").forEach((el) => {
+      el.style.opacity = "0";
+      el.style.transform = "translateY(18px)";
+      revealObserver.current?.observe(el);
+    });
+
+    return () => revealObserver.current?.disconnect();
+  }, []);
 
   const handleBookOneDayPass = () => {
-    setBookingType('one_day_pass');
+    setBookingType("one_day_pass");
     setBookingDialogOpen(true);
   };
 
   const handleBookTour = () => {
-    setBookingType('gym_tour');
+    setBookingType("gym_tour");
     setBookingDialogOpen(true);
   };
 
   return (
-    <div className="min-h-screen">
-      {/* Navigation */}
-      <nav className="bg-slate-900 text-white sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Dumbbell className="size-8 text-orange-500" />
-              <h1 className="text-white">AKHADA</h1>
+    <div className="min-h-screen antialiased text-slate-900">
+      {/* NAV */}
+      <nav
+        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-350 ${
+          scrolled ? "backdrop-blur-sm bg-slate-900/70" : "bg-transparent"
+        }`}
+      >
+        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-orange-500 p-2 rounded-md shadow-md">
+              <Dumbbell className="size-6 text-white" />
             </div>
-            <div className="flex items-center gap-4">
-              <a href="#browse" className="hover:text-orange-500 transition-colors">Browse</a>
-              <a href="#pricing" className="hover:text-orange-500 transition-colors">Pricing</a>
-              <a href="#tools" className="hover:text-orange-500 transition-colors">Tools</a>
-              <Button onClick={onLogin} variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900">
-                Login
-              </Button>
-            </div>
+            <div className="text-white font-semibold tracking-wide">AKHADA</div>
+          </div>
+
+          <div className="flex items-center gap-4 text-white">
+            <a className="hidden md:inline hover:text-orange-400" href="#browse">
+              Browse
+            </a>
+            <a className="hidden md:inline hover:text-orange-400" href="#pricing">
+              Pricing
+            </a>
+            <a className="hidden md:inline hover:text-orange-400" href="#tools">
+              Tools
+            </a>
+            <Button
+              onClick={onLogin}
+              variant="outline"
+              className="border-white text-white hover:bg-white hover:text-slate-900"
+            >
+              Login
+            </Button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-orange-900 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-white mb-6">Transform Your Body, Transform Your Life</h1>
-          <p className="text-slate-300 max-w-2xl mx-auto mb-8">
-            Join AKHADA - where champions are made. Experience world-class facilities, expert trainers, 
-            and a community dedicated to your fitness journey.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button onClick={onJoinNow} size="lg" className="bg-orange-500 hover:bg-orange-600">
-              Join Now
-            </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-slate-900" onClick={handleBookTour}>
-              Take a Tour
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* HERO */}
+      <header ref={heroRef} className="relative h-[75vh] md:h-[82vh] overflow-hidden">
+        <div
+          ref={heroBgRef}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url('/premium-hero.jpg')`,
+          }}
+        />
 
-      {/* Browse Section */}
-      <section id="browse" className="py-16 bg-white">
-        <div className="container mx-auto px-4">
-          {/* Facilities */}
-          <div className="mb-16">
-            <h2 className="text-slate-900 text-center mb-2">Our Facilities</h2>
-            <p className="text-slate-600 text-center mb-8">State-of-the-art equipment for all your fitness needs</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {facilities.map((facility) => (
-                <Card key={facility.name} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <facility.icon className="size-12 mx-auto text-orange-500 mb-2" />
-                    <CardTitle>{facility.name}</CardTitle>
-                    <CardDescription>{facility.count}</CardDescription>
-                  </CardHeader>
-                </Card>
-              ))}
-            </div>
-          </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(3,7,14,0.75), rgba(3,7,14,0.45), rgba(3,7,14,0.7))",
+          }}
+        />
 
-          {/* Classes Schedule */}
-          <div className="mb-16">
-            <h2 className="text-slate-900 text-center mb-2">Class Schedule</h2>
-            <p className="text-slate-600 text-center mb-8">Join our expert-led group classes</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {classes.map((classItem) => (
-                <Card key={classItem.name} className="hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle>{classItem.name}</CardTitle>
-                        <CardDescription className="flex items-center gap-2 mt-2">
-                          <Users className="size-4" />
-                          {classItem.trainer}
-                        </CardDescription>
-                      </div>
-                      <Badge variant="outline">{classItem.days}</Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2 text-slate-600">
-                      <Clock className="size-4" />
-                      {classItem.time}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Trainer Profiles */}
-          <div>
-            <h2 className="text-slate-900 text-center mb-2">Meet Our Trainers</h2>
-            <p className="text-slate-600 text-center mb-8">Expert professionals dedicated to your success</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {trainers.map((trainer) => (
-                <Card key={trainer.name} className="text-center hover:shadow-lg transition-shadow">
-                  <CardHeader>
-                    <div className="text-6xl mb-2">{trainer.image}</div>
-                    <CardTitle>{trainer.name}</CardTitle>
-                    <CardDescription>{trainer.specialization}</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-center gap-2 text-slate-600">
-                        <Trophy className="size-4" />
-                        {trainer.experience} experience
-                      </div>
-                      <div className="flex items-center justify-center gap-1">
-                        <Star className="size-4 fill-orange-500 text-orange-500" />
-                        <span>{trainer.rating}</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-slate-50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-slate-900 text-center mb-2">Choose Your Plan</h2>
-          <p className="text-slate-600 text-center mb-8">Flexible membership options to fit your lifestyle</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
-            {plans.map((plan) => (
-              <Card 
-                key={plan.name} 
-                className={`relative ${plan.popular ? 'border-orange-500 border-2 shadow-xl' : ''}`}
+        <div className="relative z-10 container mx-auto px-4 h-full flex items-center">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 w-full">
+            {/* MAIN HERO TEXT BOX */}
+            <div className="md:col-span-7">
+              <div
+                className="inline-block rounded-3xl bg-white/10 backdrop-blur-md border border-white/10 p-8 md:p-12 shadow-2xl"
+                style={{ boxShadow: "0 18px 50px rgba(2,6,23,0.55)" }}
               >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-orange-500">Most Popular</Badge>
-                  </div>
-                )}
-                <CardHeader>
-                  <CardTitle className="text-center">{plan.name}</CardTitle>
-                  <div className="text-center mt-4">
-                    <span className="text-slate-900">{plan.price}</span>
-                    <span className="text-slate-600"> {plan.duration}</span>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-2">
-                        <Check className="size-5 text-green-500 shrink-0 mt-0.5" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    onClick={onJoinNow} 
-                    className={`w-full ${plan.popular ? 'bg-orange-500 hover:bg-orange-600' : ''}`}
+                <h1 className="text-4xl md:text-6xl font-extrabold text-white leading-tight drop-shadow-md">
+                  Make the next version of you
+                </h1>
+
+                <p className="mt-4 text-white/85 text-lg md:text-xl">
+                  Premium facilities, real results — built for people who mean business.
+                </p>
+
+                <div className="mt-6 flex gap-3">
+                  <Button
+                    onClick={onJoinNow}
+                    size="lg"
+                    className="bg-orange-500 hover:bg-orange-600"
                   >
                     Join Now
                   </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-
-          {/* One-Day Pass & Tour */}
-          <div className="mt-12 max-w-4xl mx-auto">
-            <h3 className="text-slate-900 text-center mb-6">Not Ready to Commit? Try Us Out!</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="border-2 border-orange-200 bg-gradient-to-br from-white to-orange-50 hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-orange-500 p-3 rounded-lg">
-                      <Ticket className="size-6 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-slate-900">One Day Pass</CardTitle>
-                      <CardDescription>Full gym access for 24 hours</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-center py-4">
-                    <span className="text-orange-600">₹500</span>
-                    <span className="text-slate-600"> / day</span>
-                  </div>
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Access all equipment</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Join group classes</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Locker & shower facilities</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Instant QR code ticket</span>
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={handleBookOneDayPass} className="w-full bg-orange-500 hover:bg-orange-600">
-                    <Ticket className="mr-2 size-4" />
-                    Book One Day Pass
+                  <Button
+                    variant="outline"
+                    onClick={handleBookTour}
+                    className="text-white border-white"
+                  >
+                    Take a Tour
                   </Button>
-                </CardFooter>
-              </Card>
+                </div>
 
-              <Card className="border-2 border-blue-200 bg-gradient-to-br from-white to-blue-50 hover:shadow-xl transition-shadow">
-                <CardHeader>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-blue-500 p-3 rounded-lg">
-                      <MapPin className="size-6 text-white" />
-                    </div>
+                <div className="mt-6 flex gap-8 text-white/90 text-sm">
+                  <div className="flex items-center gap-2">
+                    <Activity className="size-4" />
+                    <span>World-class equipment</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Users className="size-4" />
+                    <span>Focused coaching</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* FLOATING CTA CARD */}
+            <div className="md:col-span-5 relative">
+              <div className="absolute -bottom-10 right-0 md:static">
+                <div
+                  className="
+                    w-full max-w-sm rounded-2xl shadow-2xl
+                    bg-black/55 backdrop-blur-md border border-white/10
+                    text-white p-6
+                  "
+                >
+                  <h3 className="text-xl md:text-2xl font-semibold">
+                    Make the next version of you
+                  </h3>
+
+                  <p className="mt-2 text-white/80">
+                    Premium facilities, real results — built for people who mean business.
+                  </p>
+
+                  <div className="flex gap-3 mt-4">
+                    <button
+                      onClick={handleBookOneDayPass}
+                      className="flex-1 rounded-xl bg-orange-500 hover:bg-orange-600 py-2 px-4"
+                    >
+                      One Day Pass
+                    </button>
+
+                    <button
+                      onClick={onJoinNow}
+                      className="flex-1 rounded-xl border border-white/20 bg-white/10 py-2 px-4"
+                    >
+                      Join Now
+                    </button>
+                  </div>
+
+                  <div className="mt-4 flex justify-between">
                     <div>
-                      <CardTitle className="text-slate-900">Gym Tour</CardTitle>
-                      <CardDescription>Guided facility walkthrough</CardDescription>
+                      <div className="text-xs text-white/70">Full access</div>
+                      <div className="font-semibold">24 hours</div>
                     </div>
+                    <div className="text-orange-400 font-bold text-xl">₹500</div>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="text-center py-4">
-                    <span className="text-blue-600">₹200</span>
-                    <span className="text-slate-600"> / tour</span>
-                  </div>
-                  <ul className="space-y-2">
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>30-minute guided tour</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Meet our trainers</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Free consultation</span>
-                    </li>
-                    <li className="flex items-center gap-2 text-slate-600">
-                      <Check className="size-4 text-green-500" />
-                      <span>Instant booking confirmation</span>
-                    </li>
-                  </ul>
-                </CardContent>
-                <CardFooter>
-                  <Button onClick={handleBookTour} variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
-                    <MapPin className="mr-2 size-4" />
-                    Book Gym Tour
-                  </Button>
-                </CardFooter>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </header>
 
-      {/* Tools Preview Section */}
-      <section id="tools" className="py-16 bg-white">
+      {/* MAIN CONTENT */}
+      <main className="mt-10">
         <div className="container mx-auto px-4">
-          <h2 className="text-slate-900 text-center mb-2">Fitness Tools</h2>
-          <p className="text-slate-600 text-center mb-8">Advanced tools to track and plan your fitness journey</p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
+
+          {/* FACILITIES */}
+          <section id="browse" className="py-10">
+            <p className="text-slate-600 text-center mb-6">
+              Carefully curated spaces and equipment to deliver consistent results.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {facilities.map((f) => {
+                const Icon = f.icon;
+                return (
+                  <div key={f.name} className="reveal-on-scroll">
+                    <Card className="p-4 rounded-xl shadow-sm">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-orange-50 p-3 rounded-lg">
+                          <Icon className="size-6 text-orange-500" />
+                        </div>
+                        <div>
+                          <div className="font-medium text-slate-900">{f.name}</div>
+                          <div className="text-slate-600 text-sm">{f.count}</div>
+                        </div>
+                      </div>
+                    </Card>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* CLASS SCHEDULE */}
+          <section className="py-10">
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Class Schedule</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {classes.map((c) => (
+                <Card key={c.name} className="p-6 rounded-xl shadow-sm reveal-on-scroll">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="font-medium text-slate-900">{c.name}</h3>
+                      <div className="flex gap-3 text-slate-600 mt-2">
+                        <Clock className="size-4" />
+                        <span>{c.time}</span>
+                      </div>
+                    </div>
+                    <Badge className="bg-slate-100 text-slate-700">{c.days}</Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* PRICING */}
+          <section id="pricing" className="py-10">
+            <h2 className="text-xl font-semibold text-slate-900 mb-6">Choose your plan</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {plans.map((p) => (
+                <Card
+                  key={p.name}
+                  className={`p-6 rounded-2xl reveal-on-scroll ${
+                    p.popular ? "border-orange-500 border-2 shadow-xl" : ""
+                  }`}
+                >
+                  <CardHeader>
+                    <CardTitle className="text-center">{p.name}</CardTitle>
+                    <div className="text-center mt-4">
+                      <div className="text-slate-900 font-semibold text-lg">{p.price}</div>
+                      <div className="text-slate-600 text-sm">{p.duration}</div>
+                    </div>
+                  </CardHeader>
+
+                  <CardContent className="pt-6">
+                    <ul className="space-y-3">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex items-start gap-3">
+                          <Check className="size-5 text-green-600 mt-0.5" />
+                          <span className="text-slate-700">{f}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+
+                  <CardFooter>
+                    <Button
+                      onClick={onJoinNow}
+                      className={`w-full ${
+                        p.popular ? "bg-orange-500 hover:bg-orange-600" : ""
+                      }`}
+                    >
+                      Join Now
+                    </Button>
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          </section>
+
+          {/* TOOLS */}
+          <section id="tools" className="py-10">
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Fitness Tools</h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="p-4 rounded-xl reveal-on-scroll">
+                <div className="flex items-start gap-4">
                   <div className="bg-orange-100 p-3 rounded-lg">
                     <Calculator className="size-6 text-orange-500" />
                   </div>
-                  <div>
-                    <CardTitle>Health Calculator</CardTitle>
-                    <CardDescription>BMI, ideal weight & nutrition</CardDescription>
+                  <div className="flex-1">
+                    <div className="font-medium text-slate-900">Health Calculator</div>
+                    <div className="text-slate-600 mt-1">BMI, ideal weight & calories</div>
                   </div>
+                  <Button onClick={onLogin} variant="outline">
+                    Login
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-600">
-                  Calculate your BMI, ideal weight, calorie needs, and get personalized macronutrient breakdowns.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={onLogin} variant="outline" className="w-full">
-                  Login to Access
-                </Button>
-              </CardFooter>
-            </Card>
+              </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="flex items-center gap-3">
+              <Card className="p-4 rounded-xl reveal-on-scroll">
+                <div className="flex items-start gap-4">
                   <div className="bg-orange-100 p-3 rounded-lg">
                     <Dumbbell className="size-6 text-orange-500" />
                   </div>
-                  <div>
-                    <CardTitle>Workout Generator</CardTitle>
-                    <CardDescription>Custom exercise plans</CardDescription>
+                  <div className="flex-1">
+                    <div className="font-medium text-slate-900">Workout Generator</div>
+                    <div className="text-slate-600 mt-1">Goal-based workouts</div>
                   </div>
+                  <Button onClick={onLogin} variant="outline">
+                    Login
+                  </Button>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-slate-600">
-                  Generate randomized workout routines based on your goals, split preferences, and experience level.
-                </p>
-              </CardContent>
-              <CardFooter>
-                <Button onClick={onLogin} variant="outline" className="w-full">
-                  Login to Access
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
+              </Card>
+            </div>
+          </section>
         </div>
-      </section>
+      </main>
 
-      {/* Footer */}
-      <footer className="bg-slate-900 text-white py-8">
+      {/* FOOTER */}
+      <footer className="bg-slate-900 text-white py-8 mt-12">
         <div className="container mx-auto px-4 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <Dumbbell className="size-6 text-orange-500" />
-            <h3 className="text-white">AKHADA</h3>
+            <Dumbbell className="size-6 text-orange-400" />
+            <div className="font-semibold">AKHADA</div>
           </div>
-          <p className="text-slate-400">Transform Your Body, Transform Your Life</p>
-          <p className="text-slate-500 mt-4">© 2025 AKHADA Gym. All rights reserved.</p>
+          <p className="text-slate-400">
+            Transform Your Body, Transform Your Life
+          </p>
+          <p className="text-slate-500 mt-3">
+            © 2025 AKHADA Gym. All rights reserved.
+          </p>
         </div>
       </footer>
 
-      {/* Booking Dialog */}
+      {/* BOOKING DIALOG */}
       <OneDayPassBooking
         isOpen={bookingDialogOpen}
         onClose={() => setBookingDialogOpen(false)}

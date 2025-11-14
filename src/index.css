@@ -2,34 +2,122 @@
 @tailwind components;
 @tailwind utilities;
 
-/* === SHADCN / AKHADA COMPATIBLE VARIABLES === */
-:root {
-  --background: 255 255 255;
-  --foreground: 15 23 42;
+/* === THEME / SHADCN COMPATIBLE VARIABLES (MIXED THEME) === */
+:root{
+  --bg-light: 255 255 255;
+  --fg-dark: 15 23 42;
   --card: 255 255 255;
   --card-foreground: 15 23 42;
-  --primary: 229 57 53; /* Akhada Red */
-  --primary-foreground: 255 255 255;
-  --secondary: 226 232 240;
-  --secondary-foreground: 15 23 42;
+  --akhada-orange: 229 57 53;
   --muted: 241 245 249;
-  --muted-foreground: 71 85 105;
-  --accent: 248 250 252;
-  --accent-foreground: 15 23 42;
-  --destructive: 220 38 38;
-  --destructive-foreground: 255 255 255;
-  --border: 226 232 240;
-  --input: 226 232 240;
-  --ring: 229 57 53;
+  --dialog-bg: 17 24 39;       /* dark dialog background rgb */
+  --dialog-foreground: 255 255 255;
 }
 
-/* App global background */
+/* Base page text (body content uses light theme) */
 body {
-  background-color: #0b0f19 !important;
-  color: rgb(var(--foreground));
+  @apply bg-[rgb(var(--bg-light))] text-[rgb(var(--fg-dark))];
 }
 
-/* === FIX: SHADCN DROPDOWNS (SelectContent) === */
+/* --- Mixed layout specifics --- */
+/* Dark sticky header */
+.site-header {
+  background: linear-gradient(90deg,#0b1220,#0f1724);
+}
+
+/* Card overrides (light cards inside main area) */
+.card-light {
+  background-color: rgb(var(--card));
+  color: rgb(var(--card-foreground));
+}
+
+/* === RADIX / PORTAL FIXES === */
+/* Make any Radix popper (eg. SelectContent) use a dark translucent backdrop but keep content readable */
 [data-radix-popper-content-wrapper] > div {
-  @apply bg-neutral-900 border border-neutral-700 text-white rounded-lg shadow-xl;
+  /* background panel for dropdowns — slightly translucent with blur */
+  @apply bg-white/95 border border-slate-200 text-[rgb(var(--fg-dark))] rounded-lg shadow-xl;
+  backdrop-filter: blur(6px);
+}
+
+/* If you prefer dropdowns darker instead, override with .dark-dropdown on body */
+/* body.dark-dropdown [data-radix-popper-content-wrapper] > div { @apply bg-neutral-900/95 border-neutral-700 text-white } */
+
+/* Dialog (SolidDialogContent) fix: overlay + content use dark theme so inner header can be white, but inputs inside must stay dark-on-light */
+.radix-dialog-overlay {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-40;
+}
+
+/* Dialog content base (dark panel) */
+.radix-dialog-content {
+  @apply fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[90vh] overflow-y-auto
+         bg-[rgb(var(--dialog-bg))] text-white border border-neutral-700 shadow-2xl rounded-2xl p-6;
+}
+
+/* Strongly scope text color rules so we don't force all inputs site-wide to white */
+/* Keep dialog header & titles white, but form inputs inside dialog should be readable with dark text */
+.radix-dialog-content .dialog-header * {
+  color: white !important;
+}
+
+/* Form inputs inside the dialog: default to light background + dark text for readability */
+.radix-dialog-content input,
+.radix-dialog-content textarea,
+.radix-dialog-content select {
+  @apply bg-white text-[rgb(var(--fg-dark))] placeholder-slate-400 border border-slate-200;
+}
+
+/* Placeholder color inside dialogs */
+.radix-dialog-content input::placeholder,
+.radix-dialog-content textarea::placeholder {
+  color: #6b7280; /* slate-500 */
+}
+
+/* Buttons inside dialog keep usual styles; explicitly avoid forced color changes */
+.radix-dialog-content button {
+  color: inherit;
+}
+
+/* Make sure icons and other inline text in cards use consistent colors */
+.card-light .text-slate-600 { color: #64748b; }
+.header-subtext { color: #94a3b8; }
+
+/* Utility: make any dark text (deep blue) consistent */
+.text-deep-blue { color: #0b2a66; }
+
+/* Accessibility: focus rings */
+:focus { outline: 2px solid rgba(229,57,53,0.18); outline-offset: 2px; }
+
+/* Optional: safelist note — if you had a safelist pattern for bg-[url(...)] it warns. Remove or ensure pattern matches valid classes. */
+/* PREMIUM GUEST PORTAL: hero parallax helpers and scoped dialog fixes */
+
+/* make sure hero CSS vars exist for mouse parallax */
+:root {
+  --mx: 0;
+  --my: 0;
+}
+
+/* Scoped hero tweaks so dialog/drops don't inherit global forced colors */
+.hero-keep-contrast * {
+  color: inherit !important;
+}
+
+/* Prevent accidental forced white text inside normal inputs and cards
+   — these are intentionally scoped to .radix-dialog and the solid dialog we created,
+   so general page text is untouched. */
+.radix-dialog input,
+.radix-dialog textarea,
+.radix-dialog select {
+  color: black !important;
+  background-color: white !important;
+}
+
+/* small smoothing for hero transforms */
+header[style] {
+  transition: transform 120ms linear;
+}
+
+/* Improve contrast on frosted cards */
+.bg-white\/6 {
+  background-color: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.06);
 }
