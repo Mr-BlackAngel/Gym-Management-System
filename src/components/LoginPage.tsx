@@ -19,10 +19,16 @@ interface LoginPageProps {
     user: { email: string; role: "admin" | "trainer" | "member"; name: string },
     rememberMe: boolean
   ) => void;
+
   onBackToGuest: () => void;
+  onSignup: () => void; // NEW
 }
 
-export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
+export default function LoginPage({
+  onLogin,
+  onBackToGuest,
+  onSignup,
+}: LoginPageProps) {
   const [role, setRole] = useState<"admin" | "trainer" | "member">("member");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -70,24 +76,25 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#0b0f19] overflow-hidden">
 
-      {/* Dark Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900 to-black" />
+      {/* Deep premium gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/60 via-slate-900 to-black" />
 
-      {/* Gym Background Image */}
+      {/* Faint Gym background */}
       <div
         className="
         absolute inset-0 
         opacity-[0.12] 
         bg-[url('/login-bg.jpg')] 
         bg-cover bg-center 
-        mix-blend-screen 
-        "
+        mix-blend-screen
+      "
       />
 
-      {/* LOGIN CARD */}
+      {/* CARD */}
       <div className="relative w-full max-w-md px-4 z-10">
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-10 text-white">
 
+          {/* ICON + TITLE */}
           <div className="flex flex-col items-center mb-8">
             <div className="bg-orange-500 p-4 rounded-full shadow-lg">
               <Dumbbell className="size-8 text-white" />
@@ -100,14 +107,15 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
             </p>
           </div>
 
+          {/* FORM */}
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* Role */}
             <div className="space-y-2">
               <Label>Select Role</Label>
-              <Select value={role} onValueChange={(value) => setRole(value as any)}>
+              <Select value={role} onValueChange={(v) => setRole(v as any)}>
                 <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                  <SelectValue />
+                  <SelectValue placeholder="Select role" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
@@ -143,31 +151,35 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
               />
             </div>
 
-            {/* Remember Me + Forgot */}
+            {/* Remember me */}
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="remember"
                   checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  onCheckedChange={(c) => setRememberMe(c as boolean)}
                 />
                 <Label htmlFor="remember" className="cursor-pointer">
                   Remember me
                 </Label>
               </div>
-              <button type="button" className="text-orange-400 hover:underline">
+
+              <button
+                type="button"
+                className="text-orange-400 hover:underline"
+              >
                 Forgot Password?
               </button>
             </div>
 
-            {/* Error Message */}
+            {/* Error */}
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
-            {/* Submit Button */}
+            {/* LOGIN BUTTON */}
             <Button
               type="submit"
               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg py-3 rounded-xl"
@@ -184,15 +196,20 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
             </Button>
           </form>
 
+          {/* SIGNUP LINK */}
           <div className="mt-6 text-center">
             <p className="text-white/70">
               Don’t have an account?{" "}
-              <span className="text-orange-400 hover:underline cursor-pointer">
+              <span
+                className="text-orange-400 hover:underline cursor-pointer"
+                onClick={onSignup}
+              >
                 Sign Up
               </span>
             </p>
           </div>
 
+          {/* BACK */}
           <div className="mt-4 text-center">
             <button
               onClick={onBackToGuest}
@@ -201,7 +218,6 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
               Back to Guest Portal
             </button>
           </div>
-
         </div>
       </div>
     </div>
