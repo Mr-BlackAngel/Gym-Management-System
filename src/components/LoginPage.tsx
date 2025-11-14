@@ -70,131 +70,139 @@ export default function LoginPage({ onLogin, onBackToGuest }: LoginPageProps) {
   return (
     <div className="relative min-h-screen flex items-center justify-center bg-[#0b0f19] overflow-hidden">
 
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/40 via-slate-900 to-black" />
+      {/* Dark Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/50 via-slate-900 to-black" />
 
-      {/* Faint gym texture */}
-      <div className="absolute inset-0 opacity-[0.10] bg-[url('https://i.imgur.com/EVUeW1A.jpeg')] bg-cover bg-center blur-[2px]" />
+      {/* Gym Background Image */}
+      <div
+        className="
+        absolute inset-0 
+        opacity-[0.12] 
+        bg-[url('/login-bg.jpg')] 
+        bg-cover bg-center 
+        mix-blend-screen 
+        "
+      />
 
-      {/* Glass login card */}
-      <div className="relative backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-10 w-full max-w-md text-white">
+      {/* LOGIN CARD */}
+      <div className="relative w-full max-w-md px-4 z-10">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 shadow-2xl rounded-3xl p-10 text-white">
 
-        {/* Logo */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="bg-orange-500 p-4 rounded-full shadow-lg">
-            <Dumbbell className="size-8 text-white" />
-          </div>
-          <h1 className="text-3xl font-semibold mt-4 tracking-tight">
-            Welcome to AKHADA
-          </h1>
-          <p className="text-white/70 text-sm text-center mt-1">
-            Sign in to access your member or trainer dashboard
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* Role */}
-          <div className="space-y-2">
-            <Label className="text-white">Select Role</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as any)}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                <SelectValue placeholder="Select role" />
-              </SelectTrigger>
-              <SelectContent className="bg-white text-slate-900">
-                <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="trainer">Trainer</SelectItem>
-                <SelectItem value="member">Member</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Email */}
-          <div className="space-y-2">
-            <Label className="text-white">Email</Label>
-            <Input
-              type="email"
-              placeholder="admin@gym.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="bg-white/10 border-white/20 text-white placeholder-white/40"
-            />
-          </div>
-
-          {/* Password */}
-          <div className="space-y-2">
-            <Label className="text-white">Password</Label>
-            <Input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="bg-white/10 border-white/20 text-white placeholder-white/40"
-            />
-          </div>
-
-          {/* Remember */}
-          <div className="flex items-center justify-between text-white/80">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="remember"
-                checked={rememberMe}
-                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-              />
-              <Label htmlFor="remember" className="cursor-pointer text-white/80">
-                Remember me
-              </Label>
+          <div className="flex flex-col items-center mb-8">
+            <div className="bg-orange-500 p-4 rounded-full shadow-lg">
+              <Dumbbell className="size-8 text-white" />
             </div>
-            <button type="button" className="text-orange-400 hover:underline">
-              Forgot Password?
+            <h1 className="text-3xl font-semibold mt-4 tracking-tight">
+              Welcome to AKHADA
+            </h1>
+            <p className="text-white/70 text-center">
+              Sign in to access your account
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+
+            {/* Role */}
+            <div className="space-y-2">
+              <Label>Select Role</Label>
+              <Select value={role} onValueChange={(value) => setRole(value as any)}>
+                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Admin</SelectItem>
+                  <SelectItem value="trainer">Trainer</SelectItem>
+                  <SelectItem value="member">Member</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                className="bg-white/10 border-white/20 text-white placeholder-white/40"
+                type="email"
+                placeholder="Enter email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Password */}
+            <div className="space-y-2">
+              <Label>Password</Label>
+              <Input
+                className="bg-white/10 border-white/20 text-white placeholder-white/40"
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            {/* Remember Me + Forgot */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="remember"
+                  checked={rememberMe}
+                  onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                />
+                <Label htmlFor="remember" className="cursor-pointer">
+                  Remember me
+                </Label>
+              </div>
+              <button type="button" className="text-orange-400 hover:underline">
+                Forgot Password?
+              </button>
+            </div>
+
+            {/* Error Message */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg py-3 rounded-xl"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 size-4 animate-spin" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-white/70">
+              Don’t have an account?{" "}
+              <span className="text-orange-400 hover:underline cursor-pointer">
+                Sign Up
+              </span>
+            </p>
+          </div>
+
+          <div className="mt-4 text-center">
+            <button
+              onClick={onBackToGuest}
+              className="text-white/60 hover:text-white hover:underline"
+            >
+              Back to Guest Portal
             </button>
           </div>
 
-          {/* Error */}
-          {error && (
-            <Alert variant="destructive" className="bg-red-900/40 border-red-700 text-white">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* Submit */}
-          <Button
-            type="submit"
-            className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold text-lg py-3 rounded-xl"
-            disabled={loading}
-          >
-            {loading ? (
-              <>
-                <Loader2 className="mr-2 size-5 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              "Sign In"
-            )}
-          </Button>
-        </form>
-
-        {/* Signup */}
-        <div className="mt-6 text-center text-white/70">
-          <p>
-            Don't have an account?{" "}
-            <button className="text-orange-400 hover:underline">Sign Up</button>
-          </p>
         </div>
-
-        {/* Back button */}
-        <div className="mt-4 text-center">
-          <button
-            onClick={onBackToGuest}
-            className="text-white/60 hover:text-white hover:underline"
-          >
-            ← Back to Guest Portal
-          </button>
-        </div>
-
       </div>
     </div>
   );
